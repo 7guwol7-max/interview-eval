@@ -126,6 +126,10 @@ table.agg td.none{color:#cbd5e1;}
 .footer-note{color:var(--ink-soft); font-size:12px; text-align:center; margin-top:30px;}
 .mg-row{display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:14px;}
 .mg-row .nm{flex:1; font-weight:600;}
+#sig-canvas{
+  width:100%; max-width:480px; aspect-ratio:2.5; height:auto; display:block;
+  border:2px dashed #94a3b8; border-radius:10px; background:#fff; touch-action:none; cursor:crosshair;
+}
 @media (max-width:640px){
   .item-row{flex-direction:column; align-items:stretch; gap:6px;}
   .grade-btns{justify-content:flex-end;}
@@ -186,6 +190,20 @@ table.agg td.none{color:#cbd5e1;}
 <section class="view" id="view-judge">
   <div class="warn" id="judge-guide" style="display:none"></div>
   <div id="judge-area"></div>
+  <div class="card" id="sig-card">
+    <h2>본인 서명 <span class="hint">한 번 서명하면 모든 평가표·집계표의 서명란에 자동으로 들어갑니다.</span></h2>
+    <div id="sig-done" style="display:none">
+      <img id="sig-img" alt="서명" style="height:64px; border:1px solid var(--line); border-radius:8px; background:#fff; padding:4px 12px">
+      <div class="out-actions" style="margin-top:10px"><button class="btn ghost small" id="sig-redo">다시 서명</button></div>
+    </div>
+    <div id="sig-pad">
+      <canvas id="sig-canvas" width="600" height="240"></canvas>
+      <div class="out-actions" style="margin-top:10px">
+        <button class="btn primary" id="sig-save">서명 저장</button>
+        <button class="btn ghost" id="sig-clear">지우기</button>
+      </div>
+    </div>
+  </div>
   <div class="note" style="text-align:center; margin-top:16px">
     점수는 누를 때마다 자동 저장됩니다 · <a href="#" id="btn-repick" style="color:var(--ink-soft)">이름 다시 선택</a>
   </div>
@@ -209,7 +227,11 @@ table.agg td.none{color:#cbd5e1;}
     <h2>한글 문서 출력</h2>
     <div class="checkline">
       <input type="checkbox" id="opt-names" checked>
-      <label for="opt-names">면접위원 성명을 서명란에 미리 넣기 (서명은 출력 후 자필)</label>
+      <label for="opt-names">면접위원 성명을 서명란에 미리 넣기</label>
+    </div>
+    <div class="checkline">
+      <input type="checkbox" id="opt-sigs" checked>
+      <label for="opt-sigs">위원이 입력한 서명 이미지를 서명란에 넣기</label>
     </div>
     <div class="out-actions">
       <button class="btn primary" id="btn-hwpx">📄 HWPX 파일 생성·다운로드</button>
@@ -259,6 +281,34 @@ function escXml(s){
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
+/* 서명 PNG의 크기(px) 읽기 */
+function pngSize(bytes){
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  return {w: dv.getUint32(16), h: dv.getUint32(20)};
+}
+/* 인라인 그림(hp:pic) XML — 실제 한글 문서의 서명 이미지 구조를 따름 */
+function makeSigPic(binId, pxW, pxH, dispW, dispH, seq){
+  const orgW = pxW * 75, orgH = pxH * 75;
+  const sx = (dispW / orgW).toFixed(6), sy = (dispH / orgH).toFixed(6);
+  return '<hp:pic id="' + (900000000 + seq) + '" zOrder="' + seq + '" numberingType="PICTURE" textWrap="TOP_AND_BOTTOM" textFlow="BOTH_SIDES" lock="0" dropcapstyle="None" href="" groupLevel="0" instid="' + (800000000 + seq) + '" reverse="0">'
+    + '<hp:offset x="0" y="0"/><hp:orgSz width="' + orgW + '" height="' + orgH + '"/><hp:curSz width="' + dispW + '" height="' + dispH + '"/>'
+    + '<hp:flip horizontal="0" vertical="0"/><hp:rotationInfo angle="0" centerX="' + Math.round(dispW / 2) + '" centerY="' + Math.round(dispH / 2) + '" rotateimage="1"/>'
+    + '<hp:renderingInfo><hc:transMatrix e1="1" e2="0" e3="0" e4="0" e5="1" e6="0"/><hc:scaMatrix e1="' + sx + '" e2="0" e3="0" e4="0" e5="' + sy + '" e6="0"/><hc:rotMatrix e1="1" e2="0" e3="0" e4="0" e5="1" e6="0"/></hp:renderingInfo>'
+    + '<hc:img binaryItemIDRef="' + binId + '" bright="0" contrast="0" effect="REAL_PIC" alpha="0"/>'
+    + '<hp:imgRect><hc:pt0 x="0" y="0"/><hc:pt1 x="' + orgW + '" y="0"/><hc:pt2 x="' + orgW + '" y="' + orgH + '"/><hc:pt3 x="0" y="' + orgH + '"/></hp:imgRect>'
+    + '<hp:imgClip left="0" right="' + orgW + '" top="0" bottom="' + orgH + '"/><hp:inMargin left="0" right="0" top="0" bottom="0"/>'
+    + '<hp:imgDim dimwidth="' + orgW + '" dimheight="' + orgH + '"/><hp:effects/>'
+    + '<hp:sz width="' + dispW + '" widthRelTo="ABSOLUTE" height="' + dispH + '" heightRelTo="ABSOLUTE" protect="0"/>'
+    + '<hp:pos treatAsChar="1" affectLSpacing="0" flowWithText="1" allowOverlap="0" holdAnchorAndSO="0" vertRelTo="PARA" horzRelTo="COLUMN" vertAlign="TOP" horzAlign="LEFT" vertOffset="0" horzOffset="0"/>'
+    + '<hp:outMargin left="0" right="0" top="0" bottom="0"/><hp:shapeComment>서명 이미지</hp:shapeComment></hp:pic>';
+}
+/* 서명란 치환 텍스트: 성명 [+ 서명 그림] (서명) */
+function signLineRepl(name, sigXml){
+  let inner = "성 명       " + (name ? escXml(name) : "            ") + "   ";
+  if(sigXml) inner += "</hp:t>" + sigXml + "<hp:t>";
+  return inner + " (서명)";
+}
+
 function parseTemplate(){
   const sec = new TextDecoder().decode(b64ToBytes(HWPX_PKG.files["Contents/section0.xml"]));
   const p1 = sec.indexOf("<hp:p");
@@ -305,24 +355,24 @@ function fillForm2(form2, opts){
   });
   [5,6,7].forEach(col => { if(colSum[col] > 0) b = fillCell(b, 6, col, String(colSum[col])); });
   b = b.replace("<hp:t>/40</hp:t>", "<hp:t>" + total + " / 40</hp:t>");
-  if(opts.judgeName){
-    b = b.replace(/성 명\s+\(서명\)/, "성 명       " + escXml(opts.judgeName) + "       (서명)");
+  if(opts.judgeName || opts.sigXml){
+    b = b.replace(/성 명\s+\(서명\)/, signLineRepl(opts.judgeName, opts.sigXml));
   }
   return b;
 }
 
-function fillForm3(form3, chunk, judgeNames){
+function fillForm3(form3, chunk, judgeLines){
   let b = form3;
   chunk.forEach((cd, k) => {
     b = fillCell(b, 1, 5 + k, cd.name);
     cd.sums.forEach((s, i) => { b = fillCell(b, 2 + i, 5 + k, String(s)); });
     b = fillCell(b, 6, 5 + k, String(cd.total));
   });
-  if(judgeNames && judgeNames.length){
+  if(judgeLines && judgeLines.length){
     let k = 0;
     b = b.replace(/성 명\s+\(서명\)/g, m => {
-      const nm = judgeNames[k++];
-      return nm ? "성 명       " + escXml(nm) + "       (서명)" : m;
+      const jl = judgeLines[k++];
+      return (jl && (jl.name || jl.sigXml)) ? signLineRepl(jl.name, jl.sigXml) : m;
     });
   }
   return b;
@@ -331,18 +381,32 @@ function fillForm3(form3, chunk, judgeNames){
 function buildSection(data, opts){
   const tpl = parseTemplate();
   const parts = [tpl.prefix];
+  const sigs = opts.signatures || {};   // judgeId -> {binId, pxW, pxH}
+  let picSeq = 0;
+  function sigXmlFor(jid){
+    const s = sigs[jid];
+    if(!s) return "";
+    const dispH = 1800;
+    let dispW = Math.round(dispH * s.pxW / s.pxH);
+    if(dispW > 7500){ dispW = 7500; }
+    picSeq++;
+    return makeSigPic(s.binId, s.pxW, s.pxH, dispW, dispH, picSeq);
+  }
   let first = true;
   data.judges.forEach(j => {
     data.candidates.forEach(c => {
       const grades = (data.scores[j.id + ":" + c.id]) || [null,null,null,null];
       parts.push(fillForm2(tpl.form2, {
         candidate: c.name, judgeName: opts.fillNames ? j.name : "",
+        sigXml: sigXmlFor(j.id),
         grades: grades, isFirst: first
       }));
       first = false;
     });
   });
-  const judgeNames = opts.fillNames ? data.judges.map(j => j.name) : [];
+  const judgeNames = data.judges.map(j => ({
+    name: opts.fillNames ? j.name : "", id: j.id
+  }));
   for(let i = 0; i < data.candidates.length; i += 5){
     const chunk = data.candidates.slice(i, i + 5).map(c => {
       const sums = [0,0,0,0];
@@ -352,7 +416,8 @@ function buildSection(data, opts){
       });
       return {name: c.name, sums: sums, total: sums[0]+sums[1]+sums[2]+sums[3]};
     });
-    parts.push(fillForm3(tpl.form3, chunk, judgeNames));
+    const judgeLines = judgeNames.map(j => ({name: j.name, sigXml: sigXmlFor(j.id)}));
+    parts.push(fillForm3(tpl.form3, chunk, judgeLines));
   }
   parts.push(tpl.suffix);
   return parts.join("");
@@ -411,17 +476,41 @@ function buildZip(entries){
 }
 
 function buildHwpx(data, opts){
-  const sectionXml = buildSection(data, opts);
+  /* 서명 PNG(dataURL) -> BinData 항목 준비 */
+  const sigPngs = opts.sigPngs || {};   // judgeId -> "data:image/png;base64,..."
+  const sigBins = [];                   // {binId, fname, bytes}
+  const sigMap = {};                    // judgeId -> {binId, pxW, pxH}
+  data.judges.forEach(j => {
+    const durl = sigPngs[j.id];
+    if(!durl || durl.indexOf("base64,") < 0) return;
+    try{
+      const bytes = b64ToBytes(durl.slice(durl.indexOf("base64,") + 7));
+      const dim = pngSize(bytes);
+      if(!dim.w || !dim.h) return;
+      const n = sigBins.length + 1;
+      const binId = "sig" + n;
+      sigBins.push({binId: binId, fname: "BinData/" + binId + ".png", bytes: bytes});
+      sigMap[j.id] = {binId: binId, pxW: dim.w, pxH: dim.h};
+    }catch(e){}
+  });
+  const sectionXml = buildSection(data, Object.assign({}, opts, {signatures: sigMap}));
   if(typeof DOMParser !== "undefined"){
     const doc = new DOMParser().parseFromString(sectionXml, "text/xml");
     if(doc.getElementsByTagName("parsererror").length) throw new Error("생성된 문서 XML 검증에 실패했습니다.");
   }
-  const entries = HWPX_PKG.order.map(name => ({
-    name: name,
-    data: name === "Contents/section0.xml"
-      ? new TextEncoder().encode(sectionXml)
-      : b64ToBytes(HWPX_PKG.files[name])
-  }));
+  const entries = HWPX_PKG.order.map(name => {
+    if(name === "Contents/section0.xml")
+      return {name: name, data: new TextEncoder().encode(sectionXml)};
+    if(name === "Contents/content.hpf" && sigBins.length){
+      let hpf = new TextDecoder().decode(b64ToBytes(HWPX_PKG.files[name]));
+      const items = sigBins.map(s =>
+        '<opf:item id="' + s.binId + '" href="' + s.fname + '" media-type="image/png" isEmbeded="1"/>').join("");
+      hpf = hpf.replace("</opf:manifest>", items + "</opf:manifest>");
+      return {name: name, data: new TextEncoder().encode(hpf)};
+    }
+    return {name: name, data: b64ToBytes(HWPX_PKG.files[name])};
+  });
+  sigBins.forEach(s => entries.push({name: s.fname, data: s.bytes}));
   return buildZip(entries);
 }
 /*CORE-END*/
@@ -612,6 +701,8 @@ function enterJudge(name){
     renderPick();
   };
   renderJudge();
+  SigPad.render();
+  loadMySig().then(() => SigPad.render());
   showView("view-judge");
 }
 function renderJudge(){
@@ -666,6 +757,75 @@ function renderJudge(){
     });
     area.appendChild(card);
   });
+}
+
+/* ---------- 서명 패드 ---------- */
+const SigPad = (() => {
+  let cv, ctx, drawing = false, dirty = false, inited = false;
+  function pos(e){
+    const r = cv.getBoundingClientRect();
+    return {x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height};
+  }
+  function initOnce(){
+    if(inited) return; inited = true;
+    cv = document.getElementById("sig-canvas");
+    ctx = cv.getContext("2d");
+    ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#111827";
+    cv.addEventListener("pointerdown", e => {
+      e.preventDefault();
+      try{ cv.setPointerCapture(e.pointerId); }catch(x){}
+      drawing = true; dirty = true;
+      const p = pos(e);
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 0.1, p.y + 0.1); ctx.stroke();
+    });
+    cv.addEventListener("pointermove", e => {
+      if(!drawing) return;
+      e.preventDefault();
+      const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+    });
+    ["pointerup","pointercancel"].forEach(ev => cv.addEventListener(ev, () => { drawing = false; }));
+    document.getElementById("sig-clear").addEventListener("click", clear);
+    document.getElementById("sig-save").addEventListener("click", saveSig);
+    document.getElementById("sig-redo").addEventListener("click", () => { clear(); render(); });
+  }
+  function clear(){ ctx.clearRect(0, 0, cv.width, cv.height); ctx.beginPath(); dirty = false; }
+  async function saveSig(){
+    if(!dirty){ alert("서명을 먼저 그려주세요."); return; }
+    const durl = cv.toDataURL("image/png");
+    const btn = document.getElementById("sig-save");
+    btn.disabled = true;
+    try{
+      await api("interview_signatures", {method:"POST",
+        headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
+        body: JSON.stringify({session_code: S.code, judge: S.judge, png: durl,
+          updated_at: new Date().toISOString()})});
+      S.mySig = durl;
+      render();
+    }catch(e){ alert("서명 저장에 실패했습니다: " + e.message + "\n잠시 후 다시 시도해 주세요."); }
+    btn.disabled = false;
+  }
+  function render(){
+    initOnce();
+    const has = !!S.mySig;
+    document.getElementById("sig-done").style.display = has ? "block" : "none";
+    document.getElementById("sig-pad").style.display = has ? "none" : "block";
+    if(has) document.getElementById("sig-img").src = S.mySig;
+  }
+  return {render: render};
+})();
+async function loadMySig(){
+  S.mySig = null;
+  try{
+    const rows = await api("interview_signatures?session_code=eq." + encodeURIComponent(S.code) +
+      "&judge=eq." + encodeURIComponent(S.judge) + "&select=png");
+    if(rows.length) S.mySig = rows[0].png;
+  }catch(e){}
+}
+async function loadSigJudges(){
+  try{
+    const rows = await api("interview_signatures?session_code=eq." + encodeURIComponent(S.code) + "&select=judge");
+    S.sigJudges = new Set(rows.map(r => r.judge));
+  }catch(e){ S.sigJudges = new Set(); }
 }
 
 /* ---------- 점수 저장 (자동 재시도) ---------- */
@@ -726,6 +886,7 @@ function enterAdmin(){
     setTimeout(() => b.textContent = "복사", 1500);
   };
   renderAdmin();
+  loadSigJudges().then(renderAdmin);
   showView("view-admin");
   startPoll();
 }
@@ -733,7 +894,7 @@ function startPoll(){
   stopPoll();
   S.pollTimer = setInterval(async () => {
     if(!S.isAdmin) return;
-    try{ await loadScores(); renderAdmin(); }catch(e){}
+    try{ await Promise.all([loadScores(), loadSigJudges()]); renderAdmin(); }catch(e){}
   }, 10000);
 }
 function stopPoll(){ if(S.pollTimer){ clearInterval(S.pollTimer); S.pollTimer = null; } }
@@ -743,7 +904,7 @@ function renderAdmin(){
   /* 진행 현황 */
   let ph = '<table class="agg"><tr><th style="text-align:left">위원 ＼ 지원자</th>';
   cands.forEach(c => ph += "<th>" + escHtml(c) + "</th>");
-  ph += "<th>완료</th></tr>";
+  ph += "<th>완료</th><th>서명</th></tr>";
   judges.forEach(j => {
     let done = 0;
     ph += '<tr><td class="lbl">' + escHtml(j) + "</td>";
@@ -753,7 +914,9 @@ function renderAdmin(){
       ph += '<td class="' + (n === 4 ? "full" : n > 0 ? "part" : "none") + '">' +
         (n === 4 ? "✔" : n > 0 ? n + "/4" : "―") + "</td>";
     });
-    ph += "<td>" + done + "/" + cands.length + "</td></tr>";
+    const signed = S.sigJudges && S.sigJudges.has(j);
+    ph += "<td>" + done + "/" + cands.length + "</td>" +
+      '<td class="' + (signed ? "full" : "none") + '">' + (signed ? "✍" : "―") + "</td></tr>";
   });
   ph += "</table>";
   document.getElementById("progress-area").innerHTML = ph;
@@ -827,6 +990,10 @@ async function renameEntry(kind, oldName){
     if(kind === "judge"){
       await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) + "&judge=eq." + encodeURIComponent(oldName),
         {method:"PATCH", headers:{Prefer:"return=minimal"}, body: JSON.stringify({judge: newName})});
+      try{
+        await api("interview_signatures?session_code=eq." + encodeURIComponent(S.code) + "&judge=eq." + encodeURIComponent(oldName),
+          {method:"PATCH", headers:{Prefer:"return=minimal"}, body: JSON.stringify({judge: newName})});
+      }catch(e){}
       await patchSession({judges: updated});
       S.session.judges = updated;
     }else{
@@ -845,6 +1012,12 @@ async function deleteEntry(kind, name){
     const field = kind === "judge" ? "judge" : "candidate";
     await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) + "&" + field + "=eq." + encodeURIComponent(name),
       {method:"DELETE", headers:{Prefer:"return=minimal"}});
+    if(kind === "judge"){
+      try{
+        await api("interview_signatures?session_code=eq." + encodeURIComponent(S.code) + "&judge=eq." + encodeURIComponent(name),
+          {method:"DELETE", headers:{Prefer:"return=minimal"}});
+      }catch(e){}
+    }
     if(kind === "judge"){
       const updated = S.session.judges.filter(n => n !== name);
       await patchSession({judges: updated}); S.session.judges = updated;
@@ -898,6 +1071,15 @@ document.getElementById("btn-hwpx").addEventListener("click", async () => {
   let missing = 0;
   judges.forEach(j => cands.forEach(c => { if(gradesOf(j, c).some(g => !g)) missing++; }));
   if(missing && !confirm("아직 다 입력되지 않은 평가가 " + missing + "건 있습니다. 빈칸으로 생성할까요?")) return;
+  let sigPngs = {};
+  if(document.getElementById("opt-sigs").checked){
+    try{
+      const rows = await api("interview_signatures?session_code=eq." + encodeURIComponent(S.code) + "&select=judge,png");
+      rows.forEach(r => { sigPngs[r.judge] = r.png; });
+    }catch(e){}
+    const unsigned = judges.filter(j => !sigPngs[j]);
+    if(unsigned.length && !confirm("아직 서명하지 않은 위원이 있습니다: " + unsigned.join(", ") + "\n해당 서명란은 비워 두고 생성할까요?")) return;
+  }
   try{
     const data = {
       judges: judges.map(n => ({id: n, name: n})),
@@ -908,7 +1090,7 @@ document.getElementById("btn-hwpx").addEventListener("click", async () => {
       const idx = key.indexOf("|");
       data.scores[key.slice(0, idx) + ":" + key.slice(idx + 1)] = S.scores[key];
     });
-    const bytes = buildHwpx(data, {fillNames: document.getElementById("opt-names").checked});
+    const bytes = buildHwpx(data, {fillNames: document.getElementById("opt-names").checked, sigPngs: sigPngs});
     const d = new Date();
     const ymd = d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0");
     const blob = new Blob([bytes], {type: "application/octet-stream"});
