@@ -578,7 +578,8 @@ async function init(){
   renderPick();
 }
 async function loadScores(){
-  const rows = await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) + "&select=judge,candidate,grades");
+  const rows = await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) +
+    "&candidate=neq.__sig__&select=judge,candidate,grades");
   S.scores = {};
   rows.forEach(r => { S.scores[scoreKey(r.judge, r.candidate)] = r.grades; });
 }
@@ -615,9 +616,10 @@ function initStart(){
 function validNames(list, label){
   if(!list.length){ alert(label + "을(를) 1명 이상 입력하세요."); return false; }
   if(new Set(list).size !== list.length){ alert(label + " 성명이 중복됩니다. 동명이인은 '홍길동A'처럼 구분해 주세요."); return false; }
-  if(list.some(n => n.includes("|") || n.includes(":"))){ alert("성명에 | 또는 : 문자는 쓸 수 없습니다."); return false; }
+  if(list.some(n => n.includes("|") || n.includes(":") || n.startsWith("__"))){ alert("성명에 | : 문자나 밑줄로 시작하는 이름은 쓸 수 없습니다."); return false; }
   return true;
 }
+function badName(n){ return n.includes("|") || n.includes(":") || n.startsWith("__"); }
 async function createSession(){
   const judges = readNames(document.getElementById("new-judges"));
   const cands = readNames(document.getElementById("new-cands"));
@@ -795,10 +797,10 @@ const SigPad = (() => {
     const btn = document.getElementById("sig-save");
     btn.disabled = true;
     try{
-      await api("interview_signatures", {method:"POST",
+      await api("interview_scores", {method:"POST",
         headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
-        body: JSON.stringify({session_code: S.code, judge: S.judge, png: durl,
-          updated_at: new Date().toISOString()})});
+        body: JSON.stringify({session_code: S.code, judge: S.judge, candidate: "__sig__",
+          grades: [durl], updated_at: new Date().toISOString()})});
       S.mySig = durl;
       render();
     }catch(e){ alert("서명 저장에 실패했습니다: " + e.message + "\n잠시 후 다시 시도해 주세요."); }
@@ -816,16 +818,24 @@ const SigPad = (() => {
 async function loadMySig(){
   S.mySig = null;
   try{
-    const rows = await api("interview_signatures?session_code=eq." + encodeURIComponent(S.code) +
-      "&judge=eq." + encodeURIComponent(S.judge) + "&select=png");
-    if(rows.length) S.mySig = rows[0].png;
+    const rows = await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) +
+      "&candidate=eq.__sig__&judge=eq." + encodeURIComponent(S.judge) + "&select=grades");
+    if(rows.length && rows[0].grades && typeof rows[0].grades[0] === "string") S.mySig = rows[0].grades[0];
   }catch(e){}
 }
 async function loadSigJudges(){
   try{
-    const rows = await api("interview_signatures?session_code=eq." + encodeURIComponent(S.code) + "&select=judge");
+    const rows = await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) +
+      "&candidate=eq.__sig__&select=judge");
     S.sigJudges = new Set(rows.map(r => r.judge));
   }catch(e){ S.sigJudges = new Set(); }
+}
+async function loadAllSigs(){
+  const rows = await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) +
+    "&candidate=eq.__sig__&select=judge,grades");
+  const map = {};
+  rows.forEach(r => { if(r.grades && typeof r.grades[0] === "string") map[r.judge] = r.grades[0]; });
+  return map;
 }
 
 /* ---------- 점수 저장 (자동 재시도) ---------- */
@@ -984,16 +994,12 @@ async function renameEntry(kind, oldName){
   if(!newName || newName === oldName) return;
   const list = kind === "judge" ? S.session.judges : S.session.candidates;
   if(list.includes(newName)){ alert("같은 이름이 이미 있습니다."); return; }
-  if(newName.includes("|") || newName.includes(":")){ alert("이름에 | 또는 : 문자는 쓸 수 없습니다."); return; }
+  if(badName(newName)){ alert("이름에 | : 문자나 밑줄로 시작하는 이름은 쓸 수 없습니다."); return; }
   try{
     const updated = list.map(n => n === oldName ? newName : n);
     if(kind === "judge"){
       await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) + "&judge=eq." + encodeURIComponent(oldName),
         {method:"PATCH", headers:{Prefer:"return=minimal"}, body: JSON.stringify({judge: newName})});
-      try{
-        await api("interview_signatures?session_code=eq." + encodeURIComponent(S.code) + "&judge=eq." + encodeURIComponent(oldName),
-          {method:"PATCH", headers:{Prefer:"return=minimal"}, body: JSON.stringify({judge: newName})});
-      }catch(e){}
       await patchSession({judges: updated});
       S.session.judges = updated;
     }else{
@@ -1013,12 +1019,6 @@ async function deleteEntry(kind, name){
     await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) + "&" + field + "=eq." + encodeURIComponent(name),
       {method:"DELETE", headers:{Prefer:"return=minimal"}});
     if(kind === "judge"){
-      try{
-        await api("interview_signatures?session_code=eq." + encodeURIComponent(S.code) + "&judge=eq." + encodeURIComponent(name),
-          {method:"DELETE", headers:{Prefer:"return=minimal"}});
-      }catch(e){}
-    }
-    if(kind === "judge"){
       const updated = S.session.judges.filter(n => n !== name);
       await patchSession({judges: updated}); S.session.judges = updated;
     }else{
@@ -1036,7 +1036,7 @@ async function addEntry(kind){
   if(!name) return;
   const list = kind === "judge" ? S.session.judges : S.session.candidates;
   if(list.includes(name)){ alert("같은 이름이 이미 있습니다."); return; }
-  if(name.includes("|") || name.includes(":")){ alert("이름에 | 또는 : 문자는 쓸 수 없습니다."); return; }
+  if(badName(name)){ alert("이름에 | : 문자나 밑줄로 시작하는 이름은 쓸 수 없습니다."); return; }
   try{
     const updated = list.concat([name]);
     if(kind === "judge"){ await patchSession({judges: updated}); S.session.judges = updated; }
@@ -1073,10 +1073,7 @@ document.getElementById("btn-hwpx").addEventListener("click", async () => {
   if(missing && !confirm("아직 다 입력되지 않은 평가가 " + missing + "건 있습니다. 빈칸으로 생성할까요?")) return;
   let sigPngs = {};
   if(document.getElementById("opt-sigs").checked){
-    try{
-      const rows = await api("interview_signatures?session_code=eq." + encodeURIComponent(S.code) + "&select=judge,png");
-      rows.forEach(r => { sigPngs[r.judge] = r.png; });
-    }catch(e){}
+    try{ sigPngs = await loadAllSigs(); }catch(e){}
     const unsigned = judges.filter(j => !sigPngs[j]);
     if(unsigned.length && !confirm("아직 서명하지 않은 위원이 있습니다: " + unsigned.join(", ") + "\n해당 서명란은 비워 두고 생성할까요?")) return;
   }
