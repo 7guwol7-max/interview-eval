@@ -16,27 +16,27 @@ body{
   background:var(--bg); color:var(--ink); line-height:1.55; padding-bottom:60px;
 }
 .wrap{max-width:1000px; margin:0 auto; padding:0 16px;}
-header{background:#fff; border-bottom:1px solid var(--line); padding:20px 0 0;}
-header h1{font-size:22px; font-weight:800;}
+header{background:#fff; border-bottom:1px solid var(--line); padding:18px 0;}
+header h1{font-size:21px; font-weight:800;}
 header p.sub{color:var(--ink-soft); font-size:13px; margin-top:2px;}
-nav.tabs{display:flex; gap:4px; margin-top:14px;}
-nav.tabs button{
-  border:none; background:none; padding:10px 18px; font-size:15px; font-weight:600;
-  color:var(--ink-soft); cursor:pointer; border-bottom:3px solid transparent; font-family:inherit;
-}
-nav.tabs button.on{color:var(--blue); border-bottom-color:var(--blue);}
+#ctx-bar{margin-top:8px; font-size:13px; color:var(--ink-soft); display:flex; gap:14px; flex-wrap:wrap; align-items:center;}
+#ctx-bar b{color:var(--ink);}
 main{padding:22px 0;}
-section.panel{display:none;}
-section.panel.on{display:block;}
+section.view{display:none;}
+section.view.on{display:block;}
 .card{background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin-bottom:16px;}
 .card h2{font-size:16px; font-weight:700; margin-bottom:12px;}
 .card h2 .hint{font-size:12px; font-weight:400; color:var(--ink-soft); margin-left:8px;}
 .rowline{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
 .rowline .num{width:24px; text-align:center; color:var(--ink-soft); font-size:13px; flex:none;}
-.rowline input[type=text]{
+.rowline input[type=text],.rowline input[type=password]{
   flex:1; border:1px solid var(--line); border-radius:8px; padding:9px 12px; font-size:15px; font-family:inherit;
 }
-.rowline input[type=text]:focus{outline:2px solid var(--blue); outline-offset:-1px; border-color:var(--blue);}
+.rowline input:focus{outline:2px solid var(--blue); outline-offset:-1px; border-color:var(--blue);}
+.field{margin-bottom:12px;}
+.field label{display:block; font-size:13px; font-weight:600; color:var(--ink-soft); margin-bottom:4px;}
+.field input{width:100%; border:1px solid var(--line); border-radius:8px; padding:9px 12px; font-size:15px; font-family:inherit;}
+.field input:focus{outline:2px solid var(--blue); outline-offset:-1px; border-color:var(--blue);}
 .icon-btn{
   flex:none; border:1px solid var(--line); background:#fff; color:var(--ink-soft);
   width:34px; height:34px; border-radius:8px; cursor:pointer; font-size:15px;
@@ -56,14 +56,14 @@ section.panel.on{display:block;}
 .btn.ghost{background:#fff; border:1px solid var(--line); color:var(--ink);}
 .btn.ghost:hover{border-color:var(--blue); color:var(--blue);}
 .btn.danger{background:#fff; border:1px solid var(--line); color:var(--red);}
+.btn.small{padding:7px 12px; font-size:13px; border-radius:8px;}
 .btn:disabled{opacity:.45; cursor:not-allowed;}
-.chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;}
-.chip{
-  border:1px solid var(--line); background:#fff; border-radius:999px; padding:8px 18px;
-  font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; color:var(--ink);
+.name-grid{display:flex; flex-wrap:wrap; gap:10px;}
+.name-grid .pick{
+  border:1px solid var(--line); background:#fff; border-radius:12px; padding:16px 26px;
+  font-size:17px; font-weight:700; cursor:pointer; font-family:inherit;
 }
-.chip.on{background:var(--blue); border-color:var(--blue); color:#fff;}
-.chip .done{font-size:12px; font-weight:400; opacity:.8; margin-left:4px;}
+.name-grid .pick:hover{border-color:var(--blue); color:var(--blue);}
 .cand-card{background:#fff; border:1px solid var(--line); border-radius:12px; margin-bottom:14px; overflow:hidden;}
 .cand-head{
   display:flex; align-items:center; justify-content:space-between;
@@ -79,7 +79,7 @@ section.panel.on{display:block;}
 .item-info .c{font-size:12px; color:var(--ink-soft); margin-top:1px;}
 .grade-btns{display:flex; gap:6px; flex:none;}
 .gbtn{
-  border:1px solid var(--line); background:#fff; border-radius:8px; width:64px; padding:8px 0;
+  border:1px solid var(--line); background:#fff; border-radius:8px; width:64px; padding:10px 0;
   font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; color:var(--ink-soft);
 }
 .gbtn:hover{border-color:var(--blue);}
@@ -91,6 +91,9 @@ table.agg td.lbl{text-align:left; font-weight:600; background:#fcfcfd;}
 table.agg .tot-row td{font-weight:800; background:var(--blue-light);}
 table.agg .rank{font-size:12px; color:var(--ink-soft);}
 table.agg .rank b{color:var(--blue); font-size:15px;}
+table.agg td.full{color:var(--green); font-weight:700;}
+table.agg td.part{color:var(--amber); font-weight:700;}
+table.agg td.none{color:#cbd5e1;}
 .note{font-size:13px; color:var(--ink-soft); margin:8px 0;}
 .warn{
   background:#fffbeb; border:1px solid #fde68a; color:#92400e;
@@ -100,14 +103,33 @@ table.agg .rank b{color:var(--blue); font-size:15px;}
   background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46;
   border-radius:10px; padding:10px 14px; font-size:13px; margin-bottom:14px;
 }
+.err-box{
+  background:#fef2f2; border:1px solid #fecaca; color:#991b1b;
+  border-radius:10px; padding:10px 14px; font-size:13px; margin-bottom:14px;
+}
 .out-actions{display:flex; flex-wrap:wrap; gap:10px; align-items:center;}
 .checkline{display:flex; align-items:center; gap:8px; font-size:14px; margin-bottom:14px;}
 .checkline input{width:16px; height:16px;}
+.link-box{
+  display:flex; gap:8px; align-items:center; background:#f8fafc; border:1px solid var(--line);
+  border-radius:10px; padding:10px 12px;
+}
+.link-box code{flex:1; font-size:13px; word-break:break-all; font-family:Consolas,monospace; color:var(--ink);}
+.sync{
+  position:fixed; right:14px; bottom:14px; z-index:10; font-size:13px; font-weight:700;
+  border-radius:999px; padding:8px 16px; background:#fff; border:1px solid var(--line);
+  color:var(--green); box-shadow:0 2px 10px rgba(0,0,0,.08); display:none;
+}
+.sync.busy{color:var(--amber);}
+.sync.fail{color:var(--red); cursor:pointer;}
 .empty-msg{color:var(--ink-soft); font-size:14px; padding:20px; text-align:center;}
 .footer-note{color:var(--ink-soft); font-size:12px; text-align:center; margin-top:30px;}
+.mg-row{display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:14px;}
+.mg-row .nm{flex:1; font-weight:600;}
 @media (max-width:640px){
   .item-row{flex-direction:column; align-items:stretch; gap:6px;}
   .grade-btns{justify-content:flex-end;}
+  .grade-btns .gbtn{flex:1;}
 }
 </style>
 </head>
@@ -115,42 +137,70 @@ table.agg .rank b{color:var(--blue); font-size:15px;}
 <header>
   <div class="wrap">
     <h1>면접 평가 및 집계</h1>
-    <p class="sub">점수를 입력하면 「서식 2) 면접 평가표」와 「서식 3) 면접 집계표」가 한글(HWPX) 문서로 자동 작성됩니다.</p>
-    <nav class="tabs">
-      <button data-tab="setup" class="on">① 명단 설정</button>
-      <button data-tab="score">② 점수 입력</button>
-      <button data-tab="out">③ 집계·출력</button>
-    </nav>
+    <p class="sub">면접위원 온라인 채점 · 「서식 2) 면접 평가표」 「서식 3) 면접 집계표」 한글(HWPX) 자동 작성</p>
+    <div id="ctx-bar"></div>
   </div>
 </header>
 
 <main class="wrap">
 
-<!-- ① 명단 -->
-<section class="panel on" id="panel-setup">
-  <div class="card">
-    <h2>면접위원 <span class="hint">서식상 서명란은 3명입니다.</span></h2>
-    <div id="judge-list"></div>
-    <button class="add-btn" id="add-judge">＋ 위원 추가</button>
-  </div>
-  <div class="card">
-    <h2>지원자 <span class="hint">집계표 한 장에 5명까지 들어가며, 넘으면 집계표가 추가 페이지로 생성됩니다.</span></h2>
-    <div id="cand-list"></div>
-    <button class="add-btn" id="add-cand">＋ 지원자 추가</button>
-  </div>
-  <div class="note">입력 내용은 이 컴퓨터(브라우저)에 자동 저장됩니다.</div>
+<section class="view on" id="view-loading">
+  <div class="empty-msg">불러오는 중…</div>
 </section>
 
-<!-- ② 점수 입력 -->
-<section class="panel" id="panel-score">
-  <div class="note" style="margin-bottom:10px">평가할 면접위원을 선택한 뒤, 지원자별로 각 항목의 등급을 누르세요. <b>상 10점 · 중 8점 · 하 6점</b></div>
-  <div class="chips" id="judge-chips"></div>
-  <div id="score-area"></div>
+<section class="view" id="view-error">
+  <div class="err-box" id="error-msg"></div>
+  <button class="btn ghost" onclick="location.href=location.pathname">처음으로</button>
 </section>
 
-<!-- ③ 집계·출력 -->
-<section class="panel" id="panel-out">
-  <div id="status-box"></div>
+<!-- 시작(관리자) -->
+<section class="view" id="view-start">
+  <div class="card">
+    <h2>새 면접 만들기 <span class="hint">위원·지원자를 등록하면 위원용 채점 링크가 생성됩니다.</span></h2>
+    <div class="field"><label>면접 제목 (선택)</label><input type="text" id="new-title" placeholder="예: 2026 다문화 동아리 음악강사 2차 면접"></div>
+    <div class="field"><label>면접위원 성명 <span style="font-weight:400">(서식상 서명란은 3명)</span></label><div id="new-judges"></div>
+      <button class="add-btn" id="add-judge">＋ 위원 추가</button></div>
+    <div class="field"><label>지원자 성명</label><div id="new-cands"></div>
+      <button class="add-btn" id="add-cand">＋ 지원자 추가</button></div>
+    <div class="field"><label>관리자 비밀번호</label><input type="password" id="new-pw" placeholder="집계·출력 화면 보호용"></div>
+    <button class="btn primary" id="btn-create">면접 만들기</button>
+  </div>
+  <div class="card">
+    <h2>기존 면접 관리 <span class="hint">이미 만든 면접의 집계·출력 화면으로 이동</span></h2>
+    <div class="rowline"><input type="text" id="open-code" placeholder="면접 코드 (예: ABC123)" style="text-transform:uppercase">
+      <input type="password" id="open-pw" placeholder="관리자 비밀번호">
+      <button class="btn ghost" id="btn-open" style="flex:none">열기</button></div>
+  </div>
+</section>
+
+<!-- 위원: 이름 선택 -->
+<section class="view" id="view-pick">
+  <div class="card">
+    <h2 id="pick-title">본인 성명을 선택하세요</h2>
+    <div class="name-grid" id="pick-grid"></div>
+  </div>
+  <div class="note" style="text-align:center"><a href="#" id="link-admin" style="color:var(--ink-soft)">관리자 화면</a></div>
+</section>
+
+<!-- 위원: 채점 -->
+<section class="view" id="view-judge">
+  <div class="warn" id="judge-guide" style="display:none"></div>
+  <div id="judge-area"></div>
+  <div class="note" style="text-align:center; margin-top:16px">
+    점수는 누를 때마다 자동 저장됩니다 · <a href="#" id="btn-repick" style="color:var(--ink-soft)">이름 다시 선택</a>
+  </div>
+</section>
+
+<!-- 관리자 -->
+<section class="view" id="view-admin">
+  <div class="card">
+    <h2>위원용 채점 링크 <span class="hint">면접위원들에게 이 링크를 전달하세요.</span></h2>
+    <div class="link-box"><code id="judge-link"></code><button class="btn ghost small" id="btn-copy">복사</button></div>
+  </div>
+  <div class="card">
+    <h2>진행 현황 <span class="hint">10초마다 자동 새로고침</span></h2>
+    <div id="progress-area" style="overflow-x:auto"></div>
+  </div>
   <div class="card">
     <h2>집계 미리보기 <span class="hint">지원자별 위원 점수 합산</span></h2>
     <div id="agg-area" style="overflow-x:auto"></div>
@@ -165,23 +215,26 @@ table.agg .rank b{color:var(--blue); font-size:15px;}
       <button class="btn primary" id="btn-hwpx">📄 HWPX 파일 생성·다운로드</button>
       <span class="note" id="page-info"></span>
     </div>
-    <div class="note" style="margin-top:10px">
-      생성 문서 구성: 면접위원별 × 지원자별 「면접 평가표」 각 1장 ＋ 「면접 집계표」. 원본 서식과 동일한 양식으로 작성됩니다.
-    </div>
   </div>
   <div class="card">
-    <h2>데이터 관리 <span class="hint">위원별로 따로 입력한 파일을 모을 때 사용</span></h2>
-    <div class="out-actions">
-      <button class="btn ghost" id="btn-export">JSON 내보내기</button>
-      <button class="btn ghost" id="btn-import">JSON 가져오기(병합)</button>
-      <button class="btn danger" id="btn-reset">전체 초기화</button>
-      <input type="file" id="import-file" accept=".json" style="display:none">
+    <h2>명단·설정 <span class="hint">이름을 바꾸면 이미 입력된 점수도 함께 이동합니다.</span></h2>
+    <div style="font-size:13px; font-weight:700; color:var(--ink-soft); margin-bottom:6px">면접위원</div>
+    <div id="mg-judges"></div>
+    <button class="add-btn" id="mg-add-judge">＋ 위원 추가</button>
+    <div style="font-size:13px; font-weight:700; color:var(--ink-soft); margin:14px 0 6px">지원자</div>
+    <div id="mg-cands"></div>
+    <button class="add-btn" id="mg-add-cand">＋ 지원자 추가</button>
+    <div class="out-actions" style="margin-top:18px">
+      <button class="btn ghost" id="btn-chpw">관리자 비밀번호 변경</button>
+      <button class="btn danger" id="btn-del-session">면접 삭제</button>
     </div>
   </div>
-  <div class="footer-note">2차 면접 평가표 및 집계표 서식 기반 · 오프라인 단일 파일 앱</div>
+  <div class="footer-note">면접 코드: <b id="admin-code"></b> · 코드와 관리자 비밀번호를 기억해 두세요.</div>
 </section>
 
 </main>
+
+<div class="sync" id="sync-badge"></div>
 
 <script>
 /*CORE-START*/
@@ -206,7 +259,6 @@ function escXml(s){
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
-/* ---------- 원본 section0.xml 을 서식2 / 서식3 블록으로 분해 ---------- */
 function parseTemplate(){
   const sec = new TextDecoder().decode(b64ToBytes(HWPX_PKG.files["Contents/section0.xml"]));
   const p1 = sec.indexOf("<hp:p");
@@ -222,7 +274,6 @@ function parseTemplate(){
   };
 }
 
-/* ---------- 표의 특정 셀(빈 셀)에 값 넣기 ---------- */
 function fillCell(block, row, col, value){
   let done = false;
   return block.replace(/<hp:tc\b[\s\S]*?<\/hp:tc>/g, seg => {
@@ -235,7 +286,6 @@ function fillCell(block, row, col, value){
   });
 }
 
-/* ---------- 서식2 (면접 평가표) 1장 생성 ---------- */
 function fillForm2(form2, opts){
   let b = form2;
   if(!opts.isFirst){
@@ -261,7 +311,6 @@ function fillForm2(form2, opts){
   return b;
 }
 
-/* ---------- 서식3 (면접 집계표) 1장 생성 (지원자 최대 5명) ---------- */
 function fillForm3(form3, chunk, judgeNames){
   let b = form3;
   chunk.forEach((cd, k) => {
@@ -279,7 +328,6 @@ function fillForm3(form3, chunk, judgeNames){
   return b;
 }
 
-/* ---------- 전체 section XML 조립 ---------- */
 function buildSection(data, opts){
   const tpl = parseTemplate();
   const parts = [tpl.prefix];
@@ -310,7 +358,6 @@ function buildSection(data, opts){
   return parts.join("");
 }
 
-/* ---------- ZIP(STORE) 작성 ---------- */
 const CRC_TABLE = (() => {
   const t = new Uint32Array(256);
   for(let n = 0; n < 256; n++){
@@ -363,7 +410,6 @@ function buildZip(entries){
   return out;
 }
 
-/* ---------- HWPX 파일 생성 ---------- */
 function buildHwpx(data, opts){
   const sectionXml = buildSection(data, opts);
   if(typeof DOMParser !== "undefined"){
@@ -380,113 +426,217 @@ function buildHwpx(data, opts){
 }
 /*CORE-END*/
 
-/* ==================== 앱 상태 ==================== */
-const LS_KEY = "interview-eval-2026";
-let state = load();
-function load(){
-  try{
-    const s = JSON.parse(localStorage.getItem(LS_KEY));
-    if(s && s.judges && s.candidates && s.scores) return s;
-  }catch(e){}
-  return {
-    nextId: 4,
-    judges: [{id:1, name:""}, {id:2, name:""}, {id:3, name:""}],
-    candidates: [],
-    scores: {},
-    curJudge: 1
-  };
-}
-function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
+/* ==================== 서버 API ==================== */
+const SB_URL = "https://uiemjuhmejyasysjmzfc.supabase.co";
+const SB_KEY = "sb_publishable_6Tox4YO359Clgfhgfg8Fmg_y2gUwyMv";
 
-/* ==================== 탭 ==================== */
-document.querySelectorAll("nav.tabs button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("nav.tabs button").forEach(b => b.classList.remove("on"));
-    document.querySelectorAll("section.panel").forEach(p => p.classList.remove("on"));
-    btn.classList.add("on");
-    document.getElementById("panel-" + btn.dataset.tab).classList.add("on");
-    if(btn.dataset.tab === "score") renderScore();
-    if(btn.dataset.tab === "out") renderOut();
+async function api(path, opts){
+  opts = opts || {};
+  const res = await fetch(SB_URL + "/rest/v1/" + path, {
+    method: opts.method || "GET",
+    headers: Object.assign({
+      "apikey": SB_KEY,
+      "Content-Type": "application/json"
+    }, opts.headers || {}),
+    body: opts.body
   });
-});
-
-/* ==================== ① 명단 ==================== */
-function renderSetup(){
-  const jl = document.getElementById("judge-list");
-  jl.innerHTML = "";
-  state.judges.forEach((j, i) => jl.appendChild(nameRow(j, i, "judge")));
-  const cl = document.getElementById("cand-list");
-  cl.innerHTML = "";
-  state.candidates.forEach((c, i) => cl.appendChild(nameRow(c, i, "cand")));
+  if(!res.ok){
+    let msg = "서버 오류 (" + res.status + ")";
+    try{ const j = await res.json(); if(j.message) msg += ": " + j.message; }catch(e){}
+    throw new Error(msg);
+  }
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;
 }
-function nameRow(obj, i, kind){
+
+/* ==================== 상태 ==================== */
+const S = {
+  code: null, session: null,   // session: {code,title,judges[],candidates[],admin_pw}
+  scores: {},                  // "judge|candidate" -> [g,g,g,g]
+  judge: null, isAdmin: false,
+  dirty: new Set(), retryTimer: null, pollTimer: null
+};
+function scoreKey(j, c){ return j + "|" + c; }
+function gradesOf(j, c){ return S.scores[scoreKey(j, c)] || [null,null,null,null]; }
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+
+function showView(id){
+  document.querySelectorAll("section.view").forEach(v => v.classList.remove("on"));
+  document.getElementById(id).classList.add("on");
+}
+function setCtx(html){ document.getElementById("ctx-bar").innerHTML = html; }
+function fail(msg){
+  document.getElementById("error-msg").textContent = msg;
+  showView("view-error");
+}
+
+/* ==================== 초기 라우팅 ==================== */
+async function init(){
+  const code = new URLSearchParams(location.search).get("s");
+  if(!code){ initStart(); showView("view-start"); return; }
+  S.code = code.toUpperCase();
+  try{
+    const rows = await api("interview_sessions?code=eq." + encodeURIComponent(S.code) + "&select=*");
+    if(!rows.length){ fail("면접 코드 '" + S.code + "' 를 찾을 수 없습니다. 링크를 다시 확인하세요."); return; }
+    S.session = rows[0];
+    await loadScores();
+  }catch(e){ fail("서버에 연결하지 못했습니다. 네트워크를 확인한 뒤 새로고침하세요. (" + e.message + ")"); return; }
+  if(lsGet("iv2-admin-" + S.code) === "1"){ enterAdmin(); return; }
+  const savedJudge = lsGet("iv2-judge-" + S.code);
+  if(savedJudge && S.session.judges.includes(savedJudge)){ enterJudge(savedJudge); return; }
+  renderPick();
+}
+async function loadScores(){
+  const rows = await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) + "&select=judge,candidate,grades");
+  S.scores = {};
+  rows.forEach(r => { S.scores[scoreKey(r.judge, r.candidate)] = r.grades; });
+}
+
+/* ==================== 시작 화면 ==================== */
+function nameInputRow(container, placeholder){
   const div = document.createElement("div");
   div.className = "rowline";
-  const num = document.createElement("span");
-  num.className = "num"; num.textContent = (i + 1);
-  const inp = document.createElement("input");
-  inp.type = "text";
-  inp.placeholder = kind === "judge" ? "위원 성명" : "지원자 성명";
-  inp.value = obj.name;
-  inp.addEventListener("input", () => { obj.name = inp.value.trim(); save(); });
-  const del = document.createElement("button");
-  del.className = "icon-btn"; del.textContent = "✕"; del.title = "삭제";
-  del.addEventListener("click", () => {
-    const label = (kind === "judge" ? "위원" : "지원자") + (obj.name ? " '" + obj.name + "'" : "");
-    if(!confirm(label + " 항목을 삭제할까요? 입력된 점수도 함께 삭제됩니다.")) return;
-    if(kind === "judge"){
-      state.judges = state.judges.filter(x => x.id !== obj.id);
-      Object.keys(state.scores).forEach(k => { if(k.startsWith(obj.id + ":")) delete state.scores[k]; });
-    }else{
-      state.candidates = state.candidates.filter(x => x.id !== obj.id);
-      Object.keys(state.scores).forEach(k => { if(k.endsWith(":" + obj.id)) delete state.scores[k]; });
-    }
-    save(); renderSetup();
-  });
+  const num = document.createElement("span"); num.className = "num";
+  const inp = document.createElement("input"); inp.type = "text"; inp.placeholder = placeholder;
+  const del = document.createElement("button"); del.className = "icon-btn"; del.textContent = "✕";
+  del.addEventListener("click", () => { div.remove(); renum(container); });
   div.append(num, inp, del);
-  return div;
+  container.appendChild(div);
+  renum(container);
+  return inp;
 }
-document.getElementById("add-judge").addEventListener("click", () => {
-  state.judges.push({id: state.nextId++, name:""}); save(); renderSetup();
-});
-document.getElementById("add-cand").addEventListener("click", () => {
-  state.candidates.push({id: state.nextId++, name:""}); save(); renderSetup();
-});
-
-/* ==================== ② 점수 입력 ==================== */
-function judgeLabel(j, i){ return j.name || ("위원 " + (i + 1)); }
-function candLabel(c, i){ return c.name || ("지원자 " + (i + 1)); }
-function gradesOf(jid, cid){ return state.scores[jid + ":" + cid] || [null,null,null,null]; }
-
-function renderScore(){
-  const chips = document.getElementById("judge-chips");
-  chips.innerHTML = "";
-  if(!state.judges.length || !state.candidates.length){
-    document.getElementById("score-area").innerHTML =
-      '<div class="empty-msg">먼저 ① 명단 설정에서 면접위원과 지원자를 등록하세요.</div>';
-    return;
+function renum(container){
+  Array.from(container.querySelectorAll(".num")).forEach((n, i) => n.textContent = i + 1);
+}
+function readNames(container){
+  return Array.from(container.querySelectorAll("input")).map(i => i.value.trim()).filter(v => v);
+}
+function initStart(){
+  const jc = document.getElementById("new-judges"), cc = document.getElementById("new-cands");
+  if(jc.children.length) return;
+  for(let i = 0; i < 3; i++) nameInputRow(jc, "위원 성명");
+  for(let i = 0; i < 2; i++) nameInputRow(cc, "지원자 성명");
+  document.getElementById("add-judge").addEventListener("click", () => nameInputRow(jc, "위원 성명"));
+  document.getElementById("add-cand").addEventListener("click", () => nameInputRow(cc, "지원자 성명"));
+  document.getElementById("btn-create").addEventListener("click", createSession);
+  document.getElementById("btn-open").addEventListener("click", openSession);
+}
+function validNames(list, label){
+  if(!list.length){ alert(label + "을(를) 1명 이상 입력하세요."); return false; }
+  if(new Set(list).size !== list.length){ alert(label + " 성명이 중복됩니다. 동명이인은 '홍길동A'처럼 구분해 주세요."); return false; }
+  if(list.some(n => n.includes("|") || n.includes(":"))){ alert("성명에 | 또는 : 문자는 쓸 수 없습니다."); return false; }
+  return true;
+}
+async function createSession(){
+  const judges = readNames(document.getElementById("new-judges"));
+  const cands = readNames(document.getElementById("new-cands"));
+  const pw = document.getElementById("new-pw").value;
+  if(!validNames(judges, "면접위원") || !validNames(cands, "지원자")) return;
+  if(!pw){ alert("관리자 비밀번호를 입력하세요."); return; }
+  const btn = document.getElementById("btn-create");
+  btn.disabled = true;
+  try{
+    const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    let code = "";
+    for(let i = 0; i < 6; i++) code += alphabet[Math.floor(Math.random() * alphabet.length)];
+    await api("interview_sessions", {method:"POST", headers:{Prefer:"return=minimal"},
+      body: JSON.stringify({code: code, title: document.getElementById("new-title").value.trim(),
+        judges: judges, candidates: cands, admin_pw: pw})});
+    S.code = code;
+    S.session = {code: code, title: document.getElementById("new-title").value.trim(), judges: judges, candidates: cands, admin_pw: pw};
+    S.scores = {};
+    lsSet("iv2-admin-" + code, "1");
+    try{ history.replaceState(null, "", location.pathname + "?s=" + code); }catch(e){}
+    enterAdmin();
+  }catch(e){
+    alert("면접 생성에 실패했습니다: " + e.message);
   }
-  if(!state.judges.some(j => j.id === state.curJudge)) state.curJudge = state.judges[0].id;
-  state.judges.forEach((j, i) => {
+  btn.disabled = false;
+}
+async function openSession(){
+  const code = document.getElementById("open-code").value.trim().toUpperCase();
+  const pw = document.getElementById("open-pw").value;
+  if(!code || !pw){ alert("코드와 비밀번호를 입력하세요."); return; }
+  try{
+    const rows = await api("interview_sessions?code=eq." + encodeURIComponent(code) + "&select=*");
+    if(!rows.length){ alert("해당 코드의 면접이 없습니다."); return; }
+    if(rows[0].admin_pw !== pw){ alert("관리자 비밀번호가 일치하지 않습니다."); return; }
+    S.code = code; S.session = rows[0];
+    await loadScores();
+    lsSet("iv2-admin-" + code, "1");
+    try{ history.replaceState(null, "", location.pathname + "?s=" + code); }catch(e){}
+    enterAdmin();
+  }catch(e){ alert("서버 연결 실패: " + e.message); }
+}
+
+/* ==================== 위원: 이름 선택 ==================== */
+function renderPick(){
+  setCtx(sessionCtx());
+  const grid = document.getElementById("pick-grid");
+  grid.innerHTML = "";
+  S.session.judges.forEach(name => {
     const b = document.createElement("button");
-    b.className = "chip" + (j.id === state.curJudge ? " on" : "");
-    const doneCnt = state.candidates.filter(c => gradesOf(j.id, c.id).every(g => g)).length;
-    b.innerHTML = judgeLabel(j, i) + '<span class="done">' + doneCnt + "/" + state.candidates.length + "</span>";
-    b.addEventListener("click", () => { state.curJudge = j.id; save(); renderScore(); });
-    chips.appendChild(b);
+    b.className = "pick"; b.textContent = name;
+    b.addEventListener("click", () => {
+      lsSet("iv2-judge-" + S.code, name);
+      enterJudge(name);
+    });
+    grid.appendChild(b);
   });
-  const area = document.getElementById("score-area");
+  document.getElementById("link-admin").onclick = e => {
+    e.preventDefault();
+    const pw = prompt("관리자 비밀번호를 입력하세요.");
+    if(pw === null) return;
+    if(pw !== S.session.admin_pw){ alert("비밀번호가 일치하지 않습니다."); return; }
+    lsSet("iv2-admin-" + S.code, "1");
+    enterAdmin();
+  };
+  showView("view-pick");
+}
+function sessionCtx(){
+  const t = S.session.title ? "<b>" + escHtml(S.session.title) + "</b>" : "<b>면접 채점</b>";
+  return t + "<span>코드 " + S.code + "</span>";
+}
+function escHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+/* ==================== 위원: 채점 ==================== */
+function enterJudge(name){
+  S.judge = name; S.isAdmin = false;
+  stopPoll();
+  setCtx(sessionCtx() + "<span>면접위원 <b>" + escHtml(name) + "</b></span>");
+  document.getElementById("btn-repick").onclick = e => {
+    e.preventDefault();
+    lsDel("iv2-judge-" + S.code);
+    renderPick();
+  };
+  renderJudge();
+  showView("view-judge");
+}
+function renderJudge(){
+  const area = document.getElementById("judge-area");
   area.innerHTML = "";
-  const jid = state.curJudge;
-  state.candidates.forEach((c, ci) => {
-    const g = gradesOf(jid, c.id);
+  const doneAll = S.session.candidates.every(c => gradesOf(S.judge, c).every(g => g));
+  const guide = document.getElementById("judge-guide");
+  if(doneAll){
+    guide.style.display = "block";
+    guide.className = "ok-box";
+    guide.textContent = "✔ 모든 지원자의 채점이 완료되었습니다. 수정하려면 다시 누르면 됩니다.";
+  }else{
+    guide.style.display = "block";
+    guide.className = "warn";
+    guide.textContent = "지원자별로 4개 항목의 등급을 눌러 주세요. 상 10점 · 중 8점 · 하 6점 (누르면 자동 저장)";
+  }
+  S.session.candidates.forEach(cName => {
+    const g = gradesOf(S.judge, cName);
     const card = document.createElement("div");
     card.className = "cand-card";
     const head = document.createElement("div");
     head.className = "cand-head";
     const filled = g.filter(x => x).length;
     const total = g.reduce((s, x) => s + (x ? GRADE_SCORE[x] : 0), 0);
-    head.innerHTML = '<span class="nm">' + candLabel(c, ci) + '</span>' +
+    head.innerHTML = '<span class="nm">' + escHtml(cName) + '</span>' +
       '<span class="tot' + (filled < 4 ? " incomplete" : "") + '">' +
       (filled < 4 ? "입력 " + filled + "/4 · " : "") + total + " / 40</span>";
     card.appendChild(head);
@@ -503,10 +653,11 @@ function renderScore(){
         b.className = "gbtn" + (g[ii] === gr ? " on" : "");
         b.textContent = gr + " " + GRADE_SCORE[gr];
         b.addEventListener("click", () => {
-          const arr = gradesOf(jid, c.id).slice();
+          const arr = gradesOf(S.judge, cName).slice();
           arr[ii] = (arr[ii] === gr) ? null : gr;
-          state.scores[jid + ":" + c.id] = arr;
-          save(); renderScore();
+          S.scores[scoreKey(S.judge, cName)] = arr;
+          pushScore(S.judge, cName);
+          renderJudge();
         });
         btns.appendChild(b);
       });
@@ -517,41 +668,109 @@ function renderScore(){
   });
 }
 
-/* ==================== ③ 집계·출력 ==================== */
-function missingList(){
-  const miss = [];
-  state.judges.forEach((j, ji) => state.candidates.forEach((c, ci) => {
-    const n = gradesOf(j.id, c.id).filter(g => g).length;
-    if(n < 4) miss.push(judgeLabel(j, ji) + " → " + candLabel(c, ci) + " (" + n + "/4)");
-  }));
-  return miss;
-}
-function renderOut(){
-  const box = document.getElementById("status-box");
-  if(!state.judges.length || !state.candidates.length){
-    box.innerHTML = '<div class="warn">면접위원과 지원자를 먼저 등록하세요.</div>';
-    document.getElementById("agg-area").innerHTML = "";
-    document.getElementById("page-info").textContent = "";
-    return;
+/* ---------- 점수 저장 (자동 재시도) ---------- */
+async function pushScore(j, c){
+  const key = scoreKey(j, c);
+  S.dirty.add(key);
+  renderSync("busy");
+  try{
+    await api("interview_scores", {method:"POST",
+      headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
+      body: JSON.stringify({session_code: S.code, judge: j, candidate: c,
+        grades: S.scores[key] || [null,null,null,null], updated_at: new Date().toISOString()})});
+    S.dirty.delete(key);
+    renderSync(S.dirty.size ? "busy" : "ok");
+  }catch(e){
+    renderSync("fail");
+    scheduleRetry();
   }
-  const miss = missingList();
-  box.innerHTML = miss.length
-    ? '<div class="warn">⚠ 미입력 ' + miss.length + "건: " + miss.slice(0, 6).join(", ") + (miss.length > 6 ? " 외" : "") + "</div>"
-    : '<div class="ok-box">✔ 모든 점수가 입력되었습니다.</div>';
+}
+function scheduleRetry(){
+  if(S.retryTimer) return;
+  S.retryTimer = setTimeout(() => {
+    S.retryTimer = null;
+    Array.from(S.dirty).forEach(key => {
+      const idx = key.indexOf("|");
+      pushScore(key.slice(0, idx), key.slice(idx + 1));
+    });
+  }, 4000);
+}
+function renderSync(mode){
+  const el = document.getElementById("sync-badge");
+  el.style.display = "block";
+  el.className = "sync" + (mode === "busy" ? " busy" : mode === "fail" ? " fail" : "");
+  el.textContent = mode === "busy" ? "저장 중…" : mode === "fail" ? "⚠ 저장 실패 — 자동 재시도 중" : "저장됨 ✓";
+  el.onclick = mode === "fail" ? () => { if(S.retryTimer){clearTimeout(S.retryTimer); S.retryTimer=null;} scheduleRetry(); } : null;
+  if(mode === "ok"){
+    clearTimeout(renderSync._t);
+    renderSync._t = setTimeout(() => { el.style.display = "none"; }, 2000);
+  }
+}
 
-  const totals = state.candidates.map(c => {
+/* ==================== 관리자 ==================== */
+function enterAdmin(){
+  S.isAdmin = true; S.judge = null;
+  setCtx(sessionCtx() + "<span><b>관리자</b> 화면</span>");
+  const link = location.origin + location.pathname + "?s=" + S.code;
+  document.getElementById("judge-link").textContent = link;
+  document.getElementById("admin-code").textContent = S.code;
+  document.getElementById("btn-copy").onclick = async () => {
+    try{ await navigator.clipboard.writeText(link); }
+    catch(e){
+      const ta = document.createElement("textarea");
+      ta.value = link; document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); ta.remove();
+    }
+    const b = document.getElementById("btn-copy");
+    b.textContent = "복사됨 ✓";
+    setTimeout(() => b.textContent = "복사", 1500);
+  };
+  renderAdmin();
+  showView("view-admin");
+  startPoll();
+}
+function startPoll(){
+  stopPoll();
+  S.pollTimer = setInterval(async () => {
+    if(!S.isAdmin) return;
+    try{ await loadScores(); renderAdmin(); }catch(e){}
+  }, 10000);
+}
+function stopPoll(){ if(S.pollTimer){ clearInterval(S.pollTimer); S.pollTimer = null; } }
+
+function renderAdmin(){
+  const judges = S.session.judges, cands = S.session.candidates;
+  /* 진행 현황 */
+  let ph = '<table class="agg"><tr><th style="text-align:left">위원 ＼ 지원자</th>';
+  cands.forEach(c => ph += "<th>" + escHtml(c) + "</th>");
+  ph += "<th>완료</th></tr>";
+  judges.forEach(j => {
+    let done = 0;
+    ph += '<tr><td class="lbl">' + escHtml(j) + "</td>";
+    cands.forEach(c => {
+      const n = gradesOf(j, c).filter(g => g).length;
+      if(n === 4) done++;
+      ph += '<td class="' + (n === 4 ? "full" : n > 0 ? "part" : "none") + '">' +
+        (n === 4 ? "✔" : n > 0 ? n + "/4" : "―") + "</td>";
+    });
+    ph += "<td>" + done + "/" + cands.length + "</td></tr>";
+  });
+  ph += "</table>";
+  document.getElementById("progress-area").innerHTML = ph;
+
+  /* 집계 */
+  const totals = cands.map(c => {
     const sums = [0,0,0,0];
-    state.judges.forEach(j => {
-      const g = state.scores[j.id + ":" + c.id];
+    judges.forEach(j => {
+      const g = S.scores[scoreKey(j, c)];
       if(g) g.forEach((v, k) => { if(v) sums[k] += GRADE_SCORE[v]; });
     });
-    return {c: c, sums: sums, total: sums.reduce((a, b) => a + b, 0)};
+    return {name: c, sums: sums, total: sums.reduce((a, b) => a + b, 0)};
   });
   const sorted = totals.slice().sort((a, b) => b.total - a.total);
   const rankOf = t => sorted.findIndex(x => x.total === t) + 1;
-
   let html = '<table class="agg"><tr><th style="text-align:left">평가항목</th>';
-  totals.forEach((t, i) => html += "<th>" + candLabel(t.c, i) + "</th>");
+  totals.forEach(t => html += "<th>" + escHtml(t.name) + "</th>");
   html += "</tr>";
   ITEMS.forEach((item, ii) => {
     html += '<tr><td class="lbl">' + (ii + 1) + ". " + item.t + "</td>";
@@ -565,23 +784,131 @@ function renderOut(){
   html += "</tr></table>";
   document.getElementById("agg-area").innerHTML = html;
 
-  const pages = state.judges.length * state.candidates.length + Math.ceil(state.candidates.length / 5);
+  const pages = judges.length * cands.length + Math.ceil(cands.length / 5);
   document.getElementById("page-info").textContent =
-    "평가표 " + (state.judges.length * state.candidates.length) + "장 + 집계표 " +
-    Math.ceil(state.candidates.length / 5) + "장 = 총 " + pages + "쪽";
+    "평가표 " + (judges.length * cands.length) + "장 + 집계표 " + Math.ceil(cands.length / 5) + "장 = 총 " + pages + "쪽";
+
+  /* 명단 관리 */
+  renderManage();
 }
 
-document.getElementById("btn-hwpx").addEventListener("click", () => {
-  if(!state.judges.length || !state.candidates.length){
-    alert("면접위원과 지원자를 먼저 등록하세요."); return;
-  }
-  if(state.candidates.some(c => !c.name) || state.judges.some(j => !j.name)){
-    if(!confirm("성명이 비어 있는 위원/지원자가 있습니다. 그대로 생성할까요?")) return;
-  }
-  const miss = missingList();
-  if(miss.length && !confirm("미입력 점수가 " + miss.length + "건 있습니다. 빈칸으로 생성할까요?")) return;
+function renderManage(){
+  const jbox = document.getElementById("mg-judges"), cbox = document.getElementById("mg-cands");
+  jbox.innerHTML = ""; cbox.innerHTML = "";
+  S.session.judges.forEach(name => jbox.appendChild(manageRow(name, "judge")));
+  S.session.candidates.forEach(name => cbox.appendChild(manageRow(name, "cand")));
+}
+function manageRow(name, kind){
+  const div = document.createElement("div");
+  div.className = "mg-row";
+  const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = name;
+  const ren = document.createElement("button"); ren.className = "btn ghost small"; ren.textContent = "이름변경";
+  ren.addEventListener("click", () => renameEntry(kind, name));
+  const del = document.createElement("button"); del.className = "btn danger small"; del.textContent = "삭제";
+  del.addEventListener("click", () => deleteEntry(kind, name));
+  div.append(nm, ren, del);
+  return div;
+}
+async function patchSession(fields){
+  await api("interview_sessions?code=eq." + encodeURIComponent(S.code),
+    {method:"PATCH", headers:{Prefer:"return=minimal"}, body: JSON.stringify(fields)});
+}
+async function renameEntry(kind, oldName){
+  const label = kind === "judge" ? "위원" : "지원자";
+  const nn = prompt(label + " 이름 변경:", oldName);
+  if(nn === null) return;
+  const newName = nn.trim();
+  if(!newName || newName === oldName) return;
+  const list = kind === "judge" ? S.session.judges : S.session.candidates;
+  if(list.includes(newName)){ alert("같은 이름이 이미 있습니다."); return; }
+  if(newName.includes("|") || newName.includes(":")){ alert("이름에 | 또는 : 문자는 쓸 수 없습니다."); return; }
   try{
-    const bytes = buildHwpx(state, {fillNames: document.getElementById("opt-names").checked});
+    const updated = list.map(n => n === oldName ? newName : n);
+    if(kind === "judge"){
+      await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) + "&judge=eq." + encodeURIComponent(oldName),
+        {method:"PATCH", headers:{Prefer:"return=minimal"}, body: JSON.stringify({judge: newName})});
+      await patchSession({judges: updated});
+      S.session.judges = updated;
+    }else{
+      await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) + "&candidate=eq." + encodeURIComponent(oldName),
+        {method:"PATCH", headers:{Prefer:"return=minimal"}, body: JSON.stringify({candidate: newName})});
+      await patchSession({candidates: updated});
+      S.session.candidates = updated;
+    }
+    await loadScores(); renderAdmin();
+  }catch(e){ alert("변경 실패: " + e.message); }
+}
+async function deleteEntry(kind, name){
+  const label = kind === "judge" ? "위원" : "지원자";
+  if(!confirm(label + " '" + name + "' 을(를) 삭제할까요? 입력된 점수도 함께 삭제됩니다.")) return;
+  try{
+    const field = kind === "judge" ? "judge" : "candidate";
+    await api("interview_scores?session_code=eq." + encodeURIComponent(S.code) + "&" + field + "=eq." + encodeURIComponent(name),
+      {method:"DELETE", headers:{Prefer:"return=minimal"}});
+    if(kind === "judge"){
+      const updated = S.session.judges.filter(n => n !== name);
+      await patchSession({judges: updated}); S.session.judges = updated;
+    }else{
+      const updated = S.session.candidates.filter(n => n !== name);
+      await patchSession({candidates: updated}); S.session.candidates = updated;
+    }
+    await loadScores(); renderAdmin();
+  }catch(e){ alert("삭제 실패: " + e.message); }
+}
+async function addEntry(kind){
+  const label = kind === "judge" ? "위원" : "지원자";
+  const nn = prompt("추가할 " + label + " 성명:");
+  if(nn === null) return;
+  const name = nn.trim();
+  if(!name) return;
+  const list = kind === "judge" ? S.session.judges : S.session.candidates;
+  if(list.includes(name)){ alert("같은 이름이 이미 있습니다."); return; }
+  if(name.includes("|") || name.includes(":")){ alert("이름에 | 또는 : 문자는 쓸 수 없습니다."); return; }
+  try{
+    const updated = list.concat([name]);
+    if(kind === "judge"){ await patchSession({judges: updated}); S.session.judges = updated; }
+    else{ await patchSession({candidates: updated}); S.session.candidates = updated; }
+    renderAdmin();
+  }catch(e){ alert("추가 실패: " + e.message); }
+}
+document.getElementById("mg-add-judge").addEventListener("click", () => addEntry("judge"));
+document.getElementById("mg-add-cand").addEventListener("click", () => addEntry("cand"));
+
+document.getElementById("btn-chpw").addEventListener("click", async () => {
+  const pw = prompt("새 관리자 비밀번호:");
+  if(pw === null || !pw.trim()) return;
+  try{ await patchSession({admin_pw: pw.trim()}); S.session.admin_pw = pw.trim(); alert("변경되었습니다."); }
+  catch(e){ alert("변경 실패: " + e.message); }
+});
+document.getElementById("btn-del-session").addEventListener("click", async () => {
+  if(!confirm("이 면접의 모든 명단·점수를 삭제할까요?")) return;
+  if(!confirm("정말 삭제합니다. 되돌릴 수 없습니다.")) return;
+  try{
+    await api("interview_sessions?code=eq." + encodeURIComponent(S.code), {method:"DELETE", headers:{Prefer:"return=minimal"}});
+    lsDel("iv2-admin-" + S.code); lsDel("iv2-judge-" + S.code);
+    stopPoll();
+    location.href = location.pathname;
+  }catch(e){ alert("삭제 실패: " + e.message); }
+});
+
+/* ==================== HWPX 출력 ==================== */
+document.getElementById("btn-hwpx").addEventListener("click", async () => {
+  try{ await loadScores(); }catch(e){}
+  const judges = S.session.judges, cands = S.session.candidates;
+  let missing = 0;
+  judges.forEach(j => cands.forEach(c => { if(gradesOf(j, c).some(g => !g)) missing++; }));
+  if(missing && !confirm("아직 다 입력되지 않은 평가가 " + missing + "건 있습니다. 빈칸으로 생성할까요?")) return;
+  try{
+    const data = {
+      judges: judges.map(n => ({id: n, name: n})),
+      candidates: cands.map(n => ({id: n, name: n})),
+      scores: {}
+    };
+    Object.keys(S.scores).forEach(key => {
+      const idx = key.indexOf("|");
+      data.scores[key.slice(0, idx) + ":" + key.slice(idx + 1)] = S.scores[key];
+    });
+    const bytes = buildHwpx(data, {fillNames: document.getElementById("opt-names").checked});
     const d = new Date();
     const ymd = d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0");
     const blob = new Blob([bytes], {type: "application/octet-stream"});
@@ -595,69 +922,7 @@ document.getElementById("btn-hwpx").addEventListener("click", () => {
   }
 });
 
-/* ---------- JSON 내보내기/가져오기 ---------- */
-document.getElementById("btn-export").addEventListener("click", () => {
-  const payload = {app: "interview-eval", exportedAt: new Date().toISOString(),
-    judges: state.judges, candidates: state.candidates, scores: state.scores};
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: "application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "면접점수_백업_" + Date.now() + ".json";
-  document.body.appendChild(a); a.click();
-  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
-});
-document.getElementById("btn-import").addEventListener("click", () => document.getElementById("import-file").click());
-document.getElementById("import-file").addEventListener("change", e => {
-  const f = e.target.files[0];
-  if(!f) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try{
-      const inc = JSON.parse(reader.result);
-      if(inc.app !== "interview-eval") throw new Error("형식이 다른 파일입니다.");
-      const candMap = {};
-      inc.candidates.forEach(ic => {
-        let mine = state.candidates.find(c => c.name && c.name === ic.name);
-        if(!mine){ mine = {id: state.nextId++, name: ic.name}; state.candidates.push(mine); }
-        candMap[ic.id] = mine.id;
-      });
-      const judgeMap = {};
-      inc.judges.forEach(ij => {
-        const hasScore = Object.keys(inc.scores).some(k => k.startsWith(ij.id + ":") && inc.scores[k].some(g => g));
-        let mine = state.judges.find(j => j.name && j.name === ij.name);
-        if(!mine && ij.name && hasScore){
-          mine = state.judges.find(j => !j.name && !Object.keys(state.scores).some(k => k.startsWith(j.id + ":")));
-          if(mine) mine.name = ij.name;
-        }
-        if(!mine && (ij.name || hasScore)){ mine = {id: state.nextId++, name: ij.name}; state.judges.push(mine); }
-        if(mine) judgeMap[ij.id] = mine.id;
-      });
-      let n = 0;
-      Object.keys(inc.scores).forEach(k => {
-        const parts = k.split(":");
-        const jid = judgeMap[parts[0]], cid = candMap[parts[1]];
-        if(jid === undefined || cid === undefined) return;
-        const arr = inc.scores[k];
-        if(arr && arr.some(g => g)){ state.scores[jid + ":" + cid] = arr; n++; }
-      });
-      save(); renderSetup(); renderOut();
-      alert("가져오기 완료: 점수 " + n + "건을 병합했습니다.");
-    }catch(err){
-      alert("가져오기 실패: " + err.message);
-    }
-    e.target.value = "";
-  };
-  reader.readAsText(f);
-});
-document.getElementById("btn-reset").addEventListener("click", () => {
-  if(!confirm("모든 명단과 점수를 삭제할까요?")) return;
-  if(!confirm("정말 삭제합니다. 되돌릴 수 없습니다.")) return;
-  localStorage.removeItem(LS_KEY);
-  state = load();
-  renderSetup(); renderScore(); renderOut();
-});
-
-renderSetup();
+init();
 </script>
 </body>
 </html>
